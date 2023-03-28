@@ -1,0 +1,45 @@
+#=========================================================================#
+# Default Web Domain Template                                             #
+# DO NOT MODIFY THIS FILE! CHANGES WILL BE LOST WHEN REBUILDING DOMAINS   #
+# https://docs.hestiacp.com/admin_docs/web.html#how-do-web-templates-work #
+#=========================================================================#
+
+server {
+    listen      xx.xxx.xxx.xx:443 ssl http2;
+    server_name api.kondish.su ;
+    ssl_certificate      /home/user/conf/web/api.kondish.su/ssl/api.kondish.su.pem;
+    ssl_certificate_key  /home/user/conf/web/api.kondish.su/ssl/api.kondish.su.key;
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    error_log  /var/log/apache2/domains/api.kondish.su.error.log error;
+
+    include /home/user/conf/web/api.kondish.su/nginx.hsts.conf*;
+
+    location / {
+        proxy_pass      https://xx.xxx.xxx.xx:8443;
+        location ~* ^.+\.(jpeg|jpg|png|gif|bmp|ico|svg|tif|tiff|css|js|htm|html|ttf|otf|webp|woff|txt|csv|rtf|doc|docx|xls|xlsx|ppt|pptx|odf|odp|ods|odt|pdf|psd|ai|eot|eps|ps|zip|tar|tgz|gz|rar|bz2|7z|aa>
+            root           /home/user/web/api.kondish.su/public_html;
+            access_log     /var/log/apache2/domains/api.kondish.su.log combined;
+            access_log     /var/log/apache2/domains/api.kondish.su.bytes bytes;
+            expires        max;
+            try_files      $uri @fallback;
+        }
+    }
+
+    location /error/ {
+        alias   /home/user/web/api.kondish.su/document_errors/;
+    }
+
+    location @fallback {
+        proxy_pass      https://xx.xxx.xxx.xx:8443;
+    }
+
+    location ~ /\.(?!well-known\/|file) {
+       deny all;
+       return 404;
+    }
+
+    proxy_hide_header Upgrade;
+
+    include /home/user/conf/web/api.kondish.su/nginx.ssl.conf_*;
+}
